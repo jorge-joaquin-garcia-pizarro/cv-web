@@ -1,254 +1,162 @@
-// Animaciones al hacer scroll
-document.addEventListener('DOMContentLoaded', function() {
-    
-    // Observador de intersección para animaciones fade-up
-    const observerOptions = {
-        threshold: 0.1,
-        rootMargin: '0px 0px -50px 0px'
-    };
-    
-    const observer = new IntersectionObserver(function(entries) {
-        entries.forEach(entry => {
-            if (entry.isIntersecting) {
-                entry.target.classList.add('visible');
-                // Opcional: dejar de observar después de animar
-                observer.unobserve(entry.target);
-            }
-        });
-    }, observerOptions);
-    
-    // Observar todas las secciones con clase 'seccion'
-    const secciones = document.querySelectorAll('.seccion');
-    secciones.forEach(seccion => {
-        observer.observe(seccion);
+// Configuración WhatsApp
+window.whatsappNumber = "542235278090"; 
+const mensajeAuto = "Quiero el catálogo";
+
+function getWhatsAppLink() {
+    return `https://wa.me/${whatsappNumber}?text=${encodeURIComponent(mensajeAuto)}`;
+}
+
+// Botón flotante WhatsApp
+const floatBtn = document.getElementById("whatsappFloat");
+if (floatBtn) {
+    floatBtn.href = getWhatsAppLink();
+    floatBtn.setAttribute('target', '_blank');
+    floatBtn.setAttribute('rel', 'noopener noreferrer');
+}
+
+// Botones de consulta por WhatsApp
+document.querySelectorAll(".producto-wa").forEach(btn => {
+    btn.addEventListener("click", function(e) {
+        e.preventDefault();
+        window.open(getWhatsAppLink(), "_blank");
     });
-    
-    // También observar proyectos y jobs individualmente para efectos adicionales
-    const cards = document.querySelectorAll('.job, .proyecto-item');
-    cards.forEach((card, index) => {
-        card.style.opacity = '0';
-        card.style.transform = 'translateY(20px)';
-        card.style.transition = `opacity 0.5s ease ${index * 0.1}s, transform 0.5s ease ${index * 0.1}s`;
-        
-        const cardObserver = new IntersectionObserver((entries) => {
-            entries.forEach(entry => {
-                if (entry.isIntersecting) {
-                    entry.target.style.opacity = '1';
-                    entry.target.style.transform = 'translateY(0)';
-                    cardObserver.unobserve(entry.target);
-                }
-            });
-        }, { threshold: 0.1 });
-        
-        cardObserver.observe(card);
-    });
-    
-    // Efecto de typing para el título (opcional)
-    const tituloElement = document.querySelector('.titulo span');
-    if (tituloElement) {
-        const originalText = tituloElement.textContent;
-        tituloElement.style.opacity = '0';
-        
-        setTimeout(() => {
-            let i = 0;
-            tituloElement.textContent = '';
-            tituloElement.style.opacity = '1';
-            
-            function typeWriter() {
-                if (i < originalText.length) {
-                    tituloElement.textContent += originalText.charAt(i);
-                    i++;
-                    setTimeout(typeWriter, 50);
-                }
-            }
-            
-            typeWriter();
-        }, 500);
-    }
-    
-    // Efecto hover avanzado para enlaces
-    const allLinks = document.querySelectorAll('.link-item, .btn-link');
-    allLinks.forEach(link => {
-        link.addEventListener('mouseenter', function(e) {
-            this.style.transition = 'all 0.3s cubic-bezier(0.4, 0, 0.2, 1)';
-        });
-        
-        // Ripple effect al hacer click
-        link.addEventListener('click', function(e) {
-            if (!this.hasAttribute('data-no-ripple')) {
-                const ripple = document.createElement('span');
-                ripple.classList.add('ripple-effect');
-                ripple.style.position = 'absolute';
-                ripple.style.borderRadius = '50%';
-                ripple.style.backgroundColor = 'rgba(44, 125, 160, 0.3';
-                ripple.style.pointerEvents = 'none';
-                ripple.style.transform = 'scale(0)';
-                ripple.style.animation = 'ripple 0.6s linear';
-                
-                const rect = this.getBoundingClientRect();
-                const size = Math.max(rect.width, rect.height);
-                ripple.style.width = ripple.style.height = `${size}px`;
-                ripple.style.left = `${e.clientX - rect.left - size/2}px`;
-                ripple.style.top = `${e.clientY - rect.top - size/2}px`;
-                
-                this.style.position = 'relative';
-                this.style.overflow = 'hidden';
-                this.appendChild(ripple);
-                
-                setTimeout(() => {
-                    ripple.remove();
-                }, 600);
-            }
-        });
-    });
-    
-    // Garantizar que TODOS los enlaces externos abran en nueva pestaña
-    const todosLosEnlaces = document.querySelectorAll('a[href^="http"], a[href^="https"]');
-    todosLosEnlaces.forEach(link => {
-        if (!link.hasAttribute('target') || link.getAttribute('target') !== '_blank') {
-            const href = link.getAttribute('href');
-            if (href && !href.startsWith('#') && !href.startsWith('javascript:')) {
-                link.setAttribute('target', '_blank');
-                link.setAttribute('rel', 'noopener noreferrer');
-            }
-        } else {
-            link.setAttribute('rel', 'noopener noreferrer');
-        }
-    });
-    
-    // Tooltip personalizado para enlaces (opcional)
-    const crearTooltip = (element, texto) => {
-        const tooltip = document.createElement('div');
-        tooltip.className = 'custom-tooltip';
-        tooltip.textContent = texto;
-        tooltip.style.position = 'absolute';
-        tooltip.style.backgroundColor = '#0f2b3d';
-        tooltip.style.color = 'white';
-        tooltip.style.padding = '4px 8px';
-        tooltip.style.borderRadius = '4px';
-        tooltip.style.fontSize = '12px';
-        tooltip.style.pointerEvents = 'none';
-        tooltip.style.opacity = '0';
-        tooltip.style.transition = 'opacity 0.3s ease';
-        tooltip.style.zIndex = '1000';
-        
-        element.style.position = 'relative';
-        element.appendChild(tooltip);
-        
-        element.addEventListener('mouseenter', (e) => {
-            tooltip.style.opacity = '1';
-            tooltip.style.top = '-30px';
-            tooltip.style.left = '0';
-        });
-        
-        element.addEventListener('mouseleave', () => {
-            tooltip.style.opacity = '0';
-        });
-    };
-    
-    // Añadir tooltips a los enlaces principales (opcional, descomentar si se quiere)
-    // const githubLink = document.querySelector('.link-item i.fa-github')?.parentElement;
-    // if (githubLink) crearTooltip(githubLink, 'Abrir GitHub');
-    
-    // Contador de estadísticas (efecto visual)
-    const crearContador = (elemento, valorFinal, duracion = 2000) => {
-        let inicio = 0;
-        const incremento = valorFinal / (duracion / 16);
-        const intervalo = setInterval(() => {
-            inicio += incremento;
-            if (inicio >= valorFinal) {
-                elemento.textContent = valorFinal;
-                clearInterval(intervalo);
-            } else {
-                elemento.textContent = Math.floor(inicio);
-            }
-        }, 16);
-    };
-    
-    // Si hubiera elementos con clase 'contador', los animaría
-    const contadores = document.querySelectorAll('.contador');
-    if (contadores.length > 0) {
-        const contadorObserver = new IntersectionObserver((entries) => {
-            entries.forEach(entry => {
-                if (entry.isIntersecting) {
-                    const valor = parseInt(entry.target.getAttribute('data-valor') || '100');
-                    crearContador(entry.target, valor);
-                    contadorObserver.unobserve(entry.target);
-                }
-            });
-        }, { threshold: 0.5 });
-        
-        contadores.forEach(contador => contadorObserver.observe(contador));
-    }
-    
-    // Efecto parallax suave en header (opcional)
-    window.addEventListener('scroll', () => {
-        const header = document.querySelector('.cv-header');
-        if (header) {
-            const scrolled = window.pageYOffset;
-            header.style.transform = `translateY(${scrolled * 0.3}px)`;
-            header.style.opacity = `${1 - scrolled * 0.002}`;
-        }
-    });
-    
-    // Animación de carga inicial
-    window.addEventListener('load', () => {
-        document.body.style.opacity = '0';
-        setTimeout(() => {
-            document.body.style.transition = 'opacity 0.5s ease';
-            document.body.style.opacity = '1';
-        }, 100);
-    });
-    
-    console.log('✅ CV interactivo cargado - Animaciones y enlaces listos');
 });
 
-// Añadir estilos dinámicos para el efecto ripple
-const style = document.createElement('style');
-style.textContent = `
-    @keyframes ripple {
-        0% {
-            transform: scale(0);
-            opacity: 0.6;
-        }
-        100% {
-            transform: scale(4);
-            opacity: 0;
-        }
-    }
-    
-    .ripple-effect {
-        position: absolute;
-        border-radius: 50%;
-        background-color: rgba(44, 125, 160, 0.3);
-        transform: scale(0);
-        animation: ripple 0.6s linear;
-        pointer-events: none;
-    }
-    
-    .custom-tooltip {
-        position: absolute;
-        white-space: nowrap;
-        z-index: 1000;
-        font-size: 0.75rem;
-        pointer-events: none;
-    }
-    
-    /* Scroll reveal mejorado */
-    .seccion {
-        transition-delay: 0.1s;
-    }
-    
-    /* Mejoras de accesibilidad */
-    a:focus-visible, button:focus-visible {
-        outline: 2px solid #2c7da0;
-        outline-offset: 2px;
-    }
-    
-    /* Efecto glassmorph en hover de tarjetas */
-    .card-hover:hover {
-        background: linear-gradient(135deg, #ffffff, #fafcfd);
-    }
-`;
+// ========== MERCADO PAGO - VERSIÓN SIMPLIFICADA ==========
+// ⚠️ REEMPLAZÁ CON TU ACCESS TOKEN
+const ACCESS_TOKEN = 'APP_USR-2563267037152499-052209-d5b70c4b31b3e98393868f409640c268-3253933638';
 
-document.head.appendChild(style);
+async function comprarConMercadoPago(producto) {
+    try {
+        const btn = event.target;
+        const originalText = btn.innerHTML;
+        btn.innerHTML = '<i class="fas fa-spinner fa-pulse"></i> Redirigiendo...';
+        btn.disabled = true;
+
+        // Crear la preferencia - VERSIÓN MÍNIMA (sin back_urls)
+        const requestBody = {
+            items: [
+                {
+                    title: producto.name,
+                    quantity: 1,
+                    unit_price: producto.price,
+                    currency_id: "ARS"
+                }
+            ]
+        };
+
+        console.log('Enviando preferencia:', requestBody);
+
+        const response = await fetch('https://api.mercadopago.com/checkout/preferences', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'Authorization': `Bearer ${ACCESS_TOKEN}`
+            },
+            body: JSON.stringify(requestBody)
+        });
+
+        const data = await response.json();
+        console.log('Respuesta completa:', data);
+
+        if (response.ok && data.init_point) {
+            // Redirigir a Mercado Pago
+            window.location.href = data.init_point;
+        } else {
+            // Mostrar error detallado
+            let errorMsg = 'Error al crear la preferencia.\n';
+            if (data.message) errorMsg += `Mensaje: ${data.message}\n`;
+            if (data.cause && data.cause.length > 0) {
+                errorMsg += `Detalle: ${data.cause[0].description}`;
+            }
+            alert(errorMsg);
+            btn.innerHTML = originalText;
+            btn.disabled = false;
+        }
+    } catch (error) {
+        console.error('Error de red:', error);
+        alert('Error de conexión. Verificá tu internet y Access Token.');
+        const btn = event.target;
+        if (btn) {
+            btn.innerHTML = '<i class="fas fa-credit-card"></i> Comprar';
+            btn.disabled = false;
+        }
+    }
+}
+
+// Agregar evento a los botones de compra
+document.querySelectorAll('.product-buy-btn').forEach(btn => {
+    btn.addEventListener('click', (e) => {
+        e.preventDefault();
+        const producto = {
+            name: btn.getAttribute('data-name'),
+            price: parseInt(btn.getAttribute('data-price'))
+        };
+        comprarConMercadoPago(producto);
+    });
+});
+
+// Newsletter
+const newsletterForm = document.getElementById("newsletterForm");
+const newsMessage = document.getElementById("newsMessage");
+
+if (newsletterForm) {
+    newsletterForm.addEventListener("submit", (e) => {
+        e.preventDefault();
+        const email = document.getElementById("newsEmail").value.trim();
+        if (email && email.includes("@")) {
+            newsMessage.textContent = "✅ ¡Suscripto! Revisá tu email.";
+            newsMessage.style.color = "#E0BC80";
+            newsletterForm.reset();
+            setTimeout(() => { newsMessage.textContent = ""; }, 3000);
+        } else {
+            newsMessage.textContent = "❌ Ingresá un email válido.";
+            newsMessage.style.color = "#BD8B49";
+            setTimeout(() => { newsMessage.textContent = ""; }, 3000);
+        }
+    });
+}
+
+// Animaciones
+document.querySelectorAll('.nav-links a, .btn-outline').forEach(anchor => {
+    anchor.addEventListener('click', function(e) {
+        const href = this.getAttribute('href');
+        if (href && href.startsWith('#')) {
+            e.preventDefault();
+            const target = document.querySelector(href);
+            if (target) target.scrollIntoView({ behavior: 'smooth', block: 'start' });
+        }
+    });
+});
+
+// Intersection Observer
+const observer = new IntersectionObserver((entries) => {
+    entries.forEach(entry => {
+        if (entry.isIntersecting) {
+            entry.target.style.opacity = '1';
+            entry.target.style.transform = 'translateY(0)';
+        }
+    });
+}, { threshold: 0.1 });
+
+document.querySelectorAll('.product-card, .attr-card, .mosaic-item').forEach(el => {
+    el.style.opacity = '0';
+    el.style.transform = 'translateY(30px)';
+    el.style.transition = 'all 0.6s ease';
+    observer.observe(el);
+});
+
+// Error de imágenes
+document.querySelectorAll('.product-image-real').forEach(img => {
+    img.addEventListener('error', function() {
+        this.style.display = 'none';
+        const parent = this.parentElement;
+        const icon = document.createElement('i');
+        icon.className = 'fas fa-perfume';
+        icon.style.fontSize = '3rem';
+        icon.style.color = '#BD8B49';
+        parent.appendChild(icon);
+    });
+});
+
+console.log("✅ Pizarro Storee - Listo para pagar con Mercado Pago");
